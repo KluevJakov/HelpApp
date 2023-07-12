@@ -23,9 +23,24 @@ public class UserController {
         return userService.createUser(user); //регистрация
     }
 
-    @PostMapping("/update")
+    @PutMapping("/update")
     public ResponseEntity<?> updateUser(@RequestBody User user) {
         return userService.updateUser(user); //обновление данных пользователя
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteUser(@RequestParam Long id) {
+        return userService.deleteUser(id); //обновление данных пользователя
+    }
+
+    @GetMapping("/grant")
+    public ResponseEntity<?> grant(@RequestParam Long id) {
+        return userService.grant(id); //обновление данных пользователя
+    }
+
+    @GetMapping("/degrant")
+    public ResponseEntity<?> degrant(@RequestParam Long id) {
+        return userService.degrant(id); //обновление данных пользователя
     }
 
     @GetMapping("/users")

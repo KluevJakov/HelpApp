@@ -1,5 +1,6 @@
 package com.HelpApp.service;
 
+import com.HelpApp.entity.Role;
 import com.HelpApp.entity.User;
 import com.HelpApp.repository.RoleRepository;
 import com.HelpApp.repository.UserRepository;
@@ -12,9 +13,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.HelpApp.configuration.AppConstants.ROLE_ADMIN_ID;
+import static com.HelpApp.configuration.AppConstants.ROLE_USER_ID;
 
 @Service
 public class UserService {
@@ -58,7 +61,7 @@ public class UserService {
 
         user.setPassword(encoder.encode(user.getPassword())); //шифруем пароль
         if (user.getRoles() == null) {
-            user.setRoles(new HashSet<>());
+            user.setRoles(Collections.singleton(roleRepository.getById(1L)));
         }
         userRepository.save(user); //сохраняем в бд
         return ResponseEntity.ok().body("");
@@ -66,6 +69,31 @@ public class UserService {
 
     public ResponseEntity<?> updateUser(User user) { //обновляем пользователя
         userRepository.save(user); //мерджим в бд
+        return ResponseEntity.ok().body("");
+    }
+
+    public ResponseEntity<?> deleteUser(Long id) { //обновляем пользователя
+        userRepository.deleteById(id);
+        return ResponseEntity.ok().body("");
+    }
+
+    public ResponseEntity<?> grant(Long id) { //обновляем пользователя
+        User user = userRepository.findById(id).get();
+        //userRepository.removeRoleLinks(id);
+        Set<Role> newRole = new HashSet<>();
+        newRole.add(roleRepository.findById(ROLE_ADMIN_ID).get());
+        user.setRoles(newRole);
+        userRepository.save(user);
+        return ResponseEntity.ok().body("");
+    }
+
+    public ResponseEntity<?> degrant(Long id) { //обновляем пользователя
+        User user = userRepository.findById(id).get();
+        //userRepository.removeRoleLinks(id);
+        Set<Role> newRole = new HashSet<>();
+        newRole.add(roleRepository.findById(ROLE_USER_ID).get());
+        user.setRoles(newRole);
+        userRepository.save(user);
         return ResponseEntity.ok().body("");
     }
 
@@ -83,7 +111,7 @@ public class UserService {
                     )
                     .collect(Collectors.toList()));
         } else {
-            return ResponseEntity.ok().body(userRepository.findUsers()); //или все
+            return ResponseEntity.ok().body(userRepository.findAll()); //или все
         }
     }
 }
